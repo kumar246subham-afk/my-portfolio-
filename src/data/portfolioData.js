@@ -125,10 +125,9 @@ export const featuredProjects = [
       "Excel to PDF",
       "PowerPoint to PDF"
     ],
-    github: "https://github.com/kumar246subham-afk/ConvertX",
-    // Verified status: Live deployment is pending user setup or unverified
-    liveDemo: null, 
-    liveStatusLabel: "Deployment Pending / Local Tested",
+    github: "https://github.com/kumar246subham-afk/convertx",
+    liveDemo: "https://convertx-client.onrender.com", 
+    liveStatusLabel: "Live Production App",
     gradient: "from-blue-600/30 via-cyan-600/20 to-transparent",
     borderAccent: "hover:border-cyan-500/50"
   },

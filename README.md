@@ -17,7 +17,7 @@
 - **Glassmorphism & Polish**: Ultra-refined frosted cards, soft glows, and subtle borders without visual clutter.
 - **Animated Role Typing**: Dynamic typewriter presentation cycling through *Data Analyst*, *Full-Stack Developer*, and *Data Science Enthusiast*.
 - **Only Two Verified Featured Projects**:
-  1. **ConvertX** — Online file conversion platform (React, Vite, Node.js, Express.js, pdf-lib).
+  1. **ConvertX** — Online file conversion platform ([Live on Render](https://convertx-client.onrender.com)).
   2. **Resume-Checker-AI** — AI-powered ATS analyzer and resume builder ([Live on Vercel](https://resume-checker-ai-blush.vercel.app)).
 - **Interactive Features**: Custom desktop-only glowing cursor, 3D card tilt effect, sticky glass navigation with scroll-spy, back-to-top circular progress indicator, and modal resume downloader.
 - **Contact & Reachout**: Direct `mailto` fallback form with copy-to-clipboard functionality and verified social links.
