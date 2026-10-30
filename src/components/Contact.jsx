@@ -9,7 +9,9 @@ import {
   Check, 
   Sparkles, 
   MessageSquare,
-  AlertCircle
+  AlertCircle,
+  ExternalLink,
+  RotateCcw
 } from 'lucide-react';
 
 export default function Contact() {
@@ -19,14 +21,26 @@ export default function Contact() {
     subject: '',
     message: ''
   });
-  const [copied, setCopied] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedDraft, setCopiedDraft] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [activeMailtoUrl, setActiveMailtoUrl] = useState('');
+  const [activeGmailUrl, setActiveGmailUrl] = useState('');
+  const [draftContent, setDraftContent] = useState('');
 
   const copyEmailToClipboard = () => {
     navigator.clipboard.writeText(personalInfo.email);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 2500);
+  };
+
+  const copyDraftToClipboard = () => {
+    if (draftContent) {
+      navigator.clipboard.writeText(draftContent);
+      setCopiedDraft(true);
+      setTimeout(() => setCopiedDraft(false), 2500);
+    }
   };
 
   const handleChange = (e) => {
@@ -37,20 +51,66 @@ export default function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      setErrorMsg('Please fill in your name, email and message.');
+    const trimmedName = formData.name.trim();
+    const trimmedEmail = formData.email.trim();
+    const trimmedSubject = formData.subject.trim();
+    const trimmedMessage = formData.message.trim();
+
+    // Validation
+    if (!trimmedName) {
+      setErrorMsg('Please enter your name.');
       return;
     }
 
-    // Format mailto fallback
-    const mailtoSubject = encodeURIComponent(formData.subject || `Portfolio Inquiry from ${formData.name}`);
-    const mailtoBody = encodeURIComponent(
-      `Hi Subham,\n\nName: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}\n`
-    );
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {
+      setErrorMsg('Please enter a valid email address (e.g. name@domain.com).');
+      return;
+    }
 
-    // Open user's email client
-    window.location.href = `mailto:${personalInfo.email}?subject=${mailtoSubject}&body=${mailtoBody}`;
+    if (!trimmedMessage) {
+      setErrorMsg('Please enter your message before sending.');
+      return;
+    }
+
+    const resolvedSubject = trimmedSubject || `Portfolio Inquiry from ${trimmedName}`;
+    const formattedBody = `Hello Subham,\n\nName: ${trimmedName}\nSender Email: ${trimmedEmail}\n\nMessage:\n${trimmedMessage}\n\n---\nSent via Portfolio Contact Form`;
+
+    // Construct Mailto URI
+    const mailtoUrl = `mailto:${personalInfo.email}?subject=${encodeURIComponent(resolvedSubject)}&body=${encodeURIComponent(formattedBody)}`;
+    
+    // Construct Direct Web Gmail URI (for users without desktop email clients)
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(personalInfo.email)}&su=${encodeURIComponent(resolvedSubject)}&body=${encodeURIComponent(formattedBody)}`;
+
+    setActiveMailtoUrl(mailtoUrl);
+    setActiveGmailUrl(gmailUrl);
+    setDraftContent(`To: ${personalInfo.email}\nSubject: ${resolvedSubject}\n\n${formattedBody}`);
+
+    // Trigger mailto through anchor element to avoid page unload or popup blockers
+    try {
+      const tempLink = document.createElement('a');
+      tempLink.href = mailtoUrl;
+      tempLink.target = '_blank';
+      tempLink.rel = 'noopener noreferrer';
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      setTimeout(() => {
+        if (document.body.contains(tempLink)) {
+          document.body.removeChild(tempLink);
+        }
+      }, 300);
+    } catch (err) {
+      // Fallback
+      window.location.href = mailtoUrl;
+    }
+
     setSubmitted(true);
+  };
+
+  const resetForm = () => {
+    setSubmitted(false);
+    setFormData({ name: '', email: '', subject: '', message: '' });
+    setErrorMsg('');
   };
 
   return (
@@ -88,17 +148,21 @@ export default function Contact() {
                 </div>
                 <div>
                   <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
-                    Direct Email
+                    Direct Email Address
                   </span>
-                  <p className="text-sm font-semibold text-white">
+                  <a
+                    href={`mailto:${personalInfo.email}?subject=${encodeURIComponent("Portfolio Inquiry - Subham Kumar Keshari")}`}
+                    className="text-sm font-semibold text-white hover:text-cyan-300 transition-colors block"
+                    title={`Send email to ${personalInfo.email}`}
+                  >
                     {personalInfo.email}
-                  </p>
+                  </a>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 pt-2">
                 <a
-                  href={`mailto:${personalInfo.email}`}
+                  href={`mailto:${personalInfo.email}?subject=${encodeURIComponent("Portfolio Inquiry - Subham Kumar Keshari")}`}
                   className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow-md shadow-blue-600/20"
                 >
                   <Mail className="w-3.5 h-3.5" />
@@ -106,11 +170,13 @@ export default function Contact() {
                 </a>
 
                 <button
+                  type="button"
                   onClick={copyEmailToClipboard}
                   className="px-3.5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-slate-300 hover:text-white transition-colors"
                   title="Copy email to clipboard"
+                  aria-label="Copy email address"
                 >
-                  {copied ? (
+                  {copiedEmail ? (
                     <Check className="w-4 h-4 text-emerald-400" />
                   ) : (
                     <Copy className="w-4 h-4" />
@@ -118,9 +184,9 @@ export default function Contact() {
                 </button>
               </div>
 
-              {copied && (
-                <p className="text-xs text-emerald-400 font-mono text-center">
-                  Email copied to clipboard!
+              {copiedEmail && (
+                <p className="text-xs text-emerald-400 font-mono text-center animate-fadeIn">
+                  Email copied to clipboard: {personalInfo.email}
                 </p>
               )}
             </div>
@@ -192,30 +258,65 @@ export default function Contact() {
               </div>
 
               {submitted ? (
-                <div className="p-6 rounded-xl bg-blue-500/10 border border-blue-500/30 text-center space-y-3 animate-fadeIn">
+                <div className="p-6 rounded-xl bg-blue-500/10 border border-blue-500/30 text-center space-y-4 animate-fadeIn">
                   <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center">
                     <Check className="w-6 h-6" />
                   </div>
-                  <h4 className="font-heading font-bold text-white text-base">
-                    Email Client Triggered
-                  </h4>
-                  <p className="text-xs text-slate-300 leading-relaxed max-w-sm mx-auto">
-                    Your message was prepared in your local email client. If it did not launch automatically, you can directly email me at <strong className="text-cyan-300">{personalInfo.email}</strong>.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setSubmitted(false);
-                      setFormData({ name: '', email: '', subject: '', message: '' });
-                    }}
-                    className="mt-2 px-4 py-2 text-xs font-semibold text-white bg-white/[0.08] hover:bg-white/[0.15] rounded-lg transition-colors"
-                  >
-                    Send Another Message
-                  </button>
+                  
+                  <div className="space-y-1">
+                    <h4 className="font-heading font-bold text-white text-base">
+                      Email Draft Prepared
+                    </h4>
+                    <p className="text-xs text-slate-300 leading-relaxed max-w-md mx-auto">
+                      Your message draft addressed to <strong className="text-cyan-300">{personalInfo.email}</strong> has been generated and your mail app triggered. Choose an option below to complete sending:
+                    </p>
+                  </div>
+
+                  {/* Actions for drafted email */}
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1">
+                    <a
+                      href={activeMailtoUrl}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs text-white bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-600/20 transition-all"
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span>Open in Mail App</span>
+                    </a>
+
+                    <a
+                      href={activeGmailUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-xs text-slate-200 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.1] hover:text-white transition-all"
+                    >
+                      <ExternalLink className="w-4 h-4 text-rose-400" />
+                      <span>Open in Gmail (Web)</span>
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={copyDraftToClipboard}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-xs text-slate-200 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.1] hover:text-white transition-all"
+                    >
+                      {copiedDraft ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                      <span>{copiedDraft ? "Draft Copied!" : "Copy Draft Text"}</span>
+                    </button>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={resetForm}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-slate-400 hover:text-slate-200 transition-colors"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Edit or Send Another Message</span>
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} noValidate className="space-y-4">
                   {errorMsg && (
-                    <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-center gap-2">
+                    <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-center gap-2 animate-fadeIn">
                       <AlertCircle className="w-4 h-4 shrink-0" />
                       <span>{errorMsg}</span>
                     </div>
@@ -231,7 +332,6 @@ export default function Contact() {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        required
                         placeholder="John Doe"
                         className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.1] text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors"
                       />
@@ -246,7 +346,6 @@ export default function Contact() {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        required
                         placeholder="john@example.com"
                         className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.1] text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors"
                       />
@@ -276,8 +375,7 @@ export default function Contact() {
                       rows={4}
                       value={formData.message}
                       onChange={handleChange}
-                      required
-                      placeholder="Share your ideas or requirements..."
+                      placeholder="Share your ideas, project requirements, or opportunity..."
                       className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.1] text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors resize-none"
                     />
                   </div>
@@ -287,11 +385,11 @@ export default function Contact() {
                     className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:via-indigo-500 hover:to-cyan-500 shadow-lg shadow-blue-600/30 hover:shadow-cyan-500/30 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 border border-cyan-400/30"
                   >
                     <Send className="w-4 h-4" />
-                    <span>Send Message (via Mailto)</span>
+                    <span>Send Message (Draft Email)</span>
                   </button>
 
                   <p className="text-[11px] text-slate-400 text-center font-mono pt-1">
-                    Directly opens your email client with verified mailto fallback.
+                    Opens your email client directly addressed to <span className="text-cyan-300">{personalInfo.email}</span>.
                   </p>
                 </form>
               )}

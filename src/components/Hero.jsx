@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { personalInfo } from '../data/portfolioData';
 import Hero3DCanvas from './Hero3DCanvas';
-import { ArrowDown, Github, Linkedin, Download, Eye, Sparkles, Terminal } from 'lucide-react';
+import { ArrowDown, Github, Linkedin, Mail, Download, Eye, Sparkles, Terminal } from 'lucide-react';
 
 export default function Hero({ onDownloadResume }) {
   const [roleIndex, setRoleIndex] = useState(0);
@@ -146,6 +146,14 @@ export default function Hero({ onDownloadResume }) {
                 aria-label="LinkedIn Profile"
               >
                 <Linkedin className="w-5 h-5 text-blue-400" />
+              </a>
+              <a
+                href={`mailto:${personalInfo.email}?subject=${encodeURIComponent("Inquiry via Portfolio - Subham Kumar Keshari")}`}
+                className="w-10 h-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.1] hover:border-cyan-400/50 flex items-center justify-center text-slate-300 hover:text-cyan-400 transition-all transform hover:scale-110"
+                title={`Email: ${personalInfo.email}`}
+                aria-label={`Send email to ${personalInfo.email}`}
+              >
+                <Mail className="w-5 h-5 text-cyan-400" />
               </a>
             </div>
           </div>

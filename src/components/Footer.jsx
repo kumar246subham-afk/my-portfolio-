@@ -46,9 +46,10 @@ export default function Footer() {
             <Linkedin className="w-4 h-4" />
           </a>
           <a
-            href={`mailto:${personalInfo.email}`}
+            href={`mailto:${personalInfo.email}?subject=${encodeURIComponent("Inquiry for Subham Kumar Keshari")}`}
             className="w-9 h-9 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] flex items-center justify-center text-slate-400 hover:text-cyan-400 transition-colors"
-            aria-label="Email"
+            title={`Email: ${personalInfo.email}`}
+            aria-label={`Send email to ${personalInfo.email}`}
           >
             <Mail className="w-4 h-4" />
           </a>
