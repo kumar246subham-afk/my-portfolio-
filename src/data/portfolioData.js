@@ -18,7 +18,7 @@ export const personalInfo = {
   email: "kumar246subham@gmail.com",
   github: "https://github.com/kumar246subham-afk",
   linkedin: "https://www.linkedin.com/in/subham-kumar-keshari-28b349321/",
-  resumePath: "/resume/Subham_Kumar_Keshari_Resume.pdf",
+  resumePath: "/resume/subham-resume.pdf",
   profileImage: "/images/subham-profile.png",
   interests: [
     "Data Analytics",

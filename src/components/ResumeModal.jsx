@@ -66,10 +66,10 @@ export default function ResumeModal({ isOpen, onClose }) {
         </div>
 
         {/* Notice for the user */}
-        <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-200 flex items-start gap-2.5">
-          <AlertCircle className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-200 flex items-start gap-2.5">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
           <p className="leading-relaxed">
-            A generated starter PDF is ready. When you have your latest PDF resume, simply replace the file at: <code className="text-cyan-300 font-mono text-[11px]">public/resume/Subham_Kumar_Keshari_Resume.pdf</code>.
+            Official resume is verified and ready for review or download as <code className="text-cyan-300 font-mono text-[11px]">Subham_Kumar_Keshari_Resume.pdf</code>.
           </p>
         </div>
 

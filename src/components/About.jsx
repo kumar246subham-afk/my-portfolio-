@@ -90,10 +90,24 @@ export default function About() {
             
             {/* Bio Box */}
             <div className="glass-panel rounded-2xl p-8 border border-white/[0.09] shadow-xl relative">
-              <h3 className="text-xl sm:text-2xl font-heading font-bold text-white mb-4 flex items-center gap-2">
-                <span>Who I Am</span>
-                <span className="w-8 h-[2px] bg-gradient-to-r from-cyan-400 to-transparent" />
-              </h3>
+              <div className="flex items-center gap-4 mb-5">
+                <div className="relative w-14 h-14 rounded-full p-[2px] bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 shadow-md shadow-blue-500/20 shrink-0 group">
+                  <img
+                    src={personalInfo.profileImage}
+                    alt="Subham Kumar Keshari"
+                    className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-heading font-bold text-white flex items-center gap-2">
+                    <span>Who I Am</span>
+                    <span className="w-8 h-[2px] bg-gradient-to-r from-cyan-400 to-transparent" />
+                  </h3>
+                  <p className="text-xs text-cyan-300 font-mono">
+                    Subham Kumar Keshari • Aspiring Data Analyst & Developer
+                  </p>
+                </div>
+              </div>
               
               <p className="text-base sm:text-lg text-slate-200 leading-relaxed mb-6 font-normal">
                 "{personalInfo.aboutText}"

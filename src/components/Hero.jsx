@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { personalInfo } from '../data/portfolioData';
 import Hero3DCanvas from './Hero3DCanvas';
-import { ArrowDown, Github, Linkedin, Download, Sparkles, Terminal } from 'lucide-react';
+import { ArrowDown, Github, Linkedin, Download, Eye, Sparkles, Terminal } from 'lucide-react';
 
 export default function Hero({ onDownloadResume }) {
   const [roleIndex, setRoleIndex] = useState(0);
@@ -90,25 +90,37 @@ export default function Hero({ onDownloadResume }) {
           </p>
 
           {/* Prominent Interactive Buttons */}
-          <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-4 w-full sm:w-auto">
+          <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-3.5 w-full sm:w-auto">
             {/* Explore My Work CTA */}
             <a
               href="#projects"
               onClick={(e) => scrollToSection(e, 'projects')}
-              className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:via-indigo-500 hover:to-cyan-500 shadow-lg shadow-blue-600/30 hover:shadow-cyan-500/30 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 border border-cyan-400/30"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:via-indigo-500 hover:to-cyan-500 shadow-lg shadow-blue-600/30 hover:shadow-cyan-500/30 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 border border-cyan-400/30"
             >
               <Sparkles className="w-4 h-4 text-cyan-200" />
               <span>Explore My Work</span>
             </a>
 
-            {/* Download Resume CTA */}
-            <button
-              onClick={onDownloadResume}
-              className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-sm text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.15] hover:border-blue-400/40 backdrop-blur-md transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 shadow-sm"
+            {/* View Resume CTA */}
+            <a
+              href="/resume/subham-resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-semibold text-sm text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.15] hover:border-cyan-400/50 hover:text-white backdrop-blur-md transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 shadow-sm group"
             >
-              <Download className="w-4 h-4 text-blue-400" />
+              <Eye className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+              <span>View Resume</span>
+            </a>
+
+            {/* Download Resume CTA */}
+            <a
+              href="/resume/subham-resume.pdf"
+              download="Subham_Kumar_Keshari_Resume.pdf"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-semibold text-sm text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.15] hover:border-blue-400/50 hover:text-white backdrop-blur-md transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 shadow-sm group"
+            >
+              <Download className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
               <span>Download Resume</span>
-            </button>
+            </a>
           </div>
 
           {/* Social Links Row */}
