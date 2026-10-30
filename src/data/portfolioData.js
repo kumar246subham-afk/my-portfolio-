@@ -16,6 +16,8 @@ export const personalInfo = {
   shortBio: "I build meaningful digital experiences by combining technology, data and creativity.",
   aboutText: "I am Subham Kumar Keshari, a Computer Engineering student at Marwadi University, passionate about Data Analytics, Full-Stack Development and emerging AI technologies. I enjoy building practical applications, solving problems and continuously learning new technologies.",
   email: "kumar246subham@gmail.com",
+  gmailComposeUrl: "https://mail.google.com/mail/?view=cm&fs=1&to=kumar246subham@gmail.com",
+  mailtoUrl: "mailto:kumar246subham@gmail.com",
   github: "https://github.com/kumar246subham-afk",
   linkedin: "https://www.linkedin.com/in/subham-kumar-keshari-28b349321/",
   resumePath: "/resume/subham-resume.pdf",

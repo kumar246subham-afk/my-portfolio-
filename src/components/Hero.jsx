@@ -148,12 +148,14 @@ export default function Hero({ onDownloadResume }) {
                 <Linkedin className="w-5 h-5 text-blue-400" />
               </a>
               <a
-                href={`mailto:${personalInfo.email}?subject=${encodeURIComponent("Inquiry via Portfolio - Subham Kumar Keshari")}`}
-                className="w-10 h-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.1] hover:border-cyan-400/50 flex items-center justify-center text-slate-300 hover:text-cyan-400 transition-all transform hover:scale-110"
-                title={`Email: ${personalInfo.email}`}
-                aria-label={`Send email to ${personalInfo.email}`}
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=kumar246subham@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.1] hover:border-cyan-400/50 flex items-center justify-center text-slate-300 hover:text-cyan-400 transition-all transform hover:scale-110 cursor-pointer"
+                title="Send Email to kumar246subham@gmail.com (Opens Gmail)"
+                aria-label="Send email to kumar246subham@gmail.com via Gmail"
               >
-                <Mail className="w-5 h-5 text-cyan-400" />
+                <Mail className="w-5 h-5 text-cyan-400 pointer-events-none" />
               </a>
             </div>
           </div>

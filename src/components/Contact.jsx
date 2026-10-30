@@ -21,25 +21,52 @@ export default function Contact() {
     subject: '',
     message: ''
   });
-  const [copiedEmail, setCopiedEmail] = useState(false);
-  const [copiedDraft, setCopiedDraft] = useState(false);
+  const [copyStatus, setCopyStatus] = useState(''); // 'copied', 'error', ''
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [activeMailtoUrl, setActiveMailtoUrl] = useState('');
-  const [activeGmailUrl, setActiveGmailUrl] = useState('');
-  const [draftContent, setDraftContent] = useState('');
+  const [generatedGmailUrl, setGeneratedGmailUrl] = useState('');
+  const [generatedMailtoUrl, setGeneratedMailtoUrl] = useState('');
 
-  const copyEmailToClipboard = () => {
-    navigator.clipboard.writeText(personalInfo.email);
-    setCopiedEmail(true);
-    setTimeout(() => setCopiedEmail(false), 2500);
+  const targetEmail = personalInfo.email || 'kumar246subham@gmail.com';
+  const directGmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${targetEmail}`;
+  const directMailtoUrl = `mailto:${targetEmail}`;
+
+  // Robust Copy Email with navigator.clipboard and fallback
+  const handleCopyEmail = () => {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(targetEmail)
+        .then(() => {
+          setCopyStatus('copied');
+          setTimeout(() => setCopyStatus(''), 2500);
+        })
+        .catch(() => fallbackCopy(targetEmail));
+    } else {
+      fallbackCopy(targetEmail);
+    }
   };
 
-  const copyDraftToClipboard = () => {
-    if (draftContent) {
-      navigator.clipboard.writeText(draftContent);
-      setCopiedDraft(true);
-      setTimeout(() => setCopiedDraft(false), 2500);
+  const fallbackCopy = (text) => {
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      if (successful) {
+        setCopyStatus('copied');
+        setTimeout(() => setCopyStatus(''), 2500);
+      } else {
+        setCopyStatus('error');
+        setTimeout(() => setCopyStatus(''), 3000);
+      }
+    } catch (err) {
+      setCopyStatus('error');
+      setTimeout(() => setCopyStatus(''), 3000);
     }
   };
 
@@ -56,7 +83,7 @@ export default function Contact() {
     const trimmedSubject = formData.subject.trim();
     const trimmedMessage = formData.message.trim();
 
-    // Validation
+    // Field Validation
     if (!trimmedName) {
       setErrorMsg('Please enter your name.');
       return;
@@ -69,45 +96,29 @@ export default function Contact() {
     }
 
     if (!trimmedMessage) {
-      setErrorMsg('Please enter your message before sending.');
+      setErrorMsg('Please enter your message.');
       return;
     }
 
-    const resolvedSubject = trimmedSubject || `Portfolio Inquiry from ${trimmedName}`;
-    const formattedBody = `Hello Subham,\n\nName: ${trimmedName}\nSender Email: ${trimmedEmail}\n\nMessage:\n${trimmedMessage}\n\n---\nSent via Portfolio Contact Form`;
+    const subject = trimmedSubject || `Portfolio Inquiry from ${trimmedName}`;
+    const body = `Hello Subham,\n\nName: ${trimmedName}\nSender Email: ${trimmedEmail}\n\nMessage:\n${trimmedMessage}\n\n---\nSent from Portfolio Website`;
 
-    // Construct Mailto URI
-    const mailtoUrl = `mailto:${personalInfo.email}?subject=${encodeURIComponent(resolvedSubject)}&body=${encodeURIComponent(formattedBody)}`;
-    
-    // Construct Direct Web Gmail URI (for users without desktop email clients)
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(personalInfo.email)}&su=${encodeURIComponent(resolvedSubject)}&body=${encodeURIComponent(formattedBody)}`;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(targetEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoUrl = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-    setActiveMailtoUrl(mailtoUrl);
-    setActiveGmailUrl(gmailUrl);
-    setDraftContent(`To: ${personalInfo.email}\nSubject: ${resolvedSubject}\n\n${formattedBody}`);
+    setGeneratedGmailUrl(gmailUrl);
+    setGeneratedMailtoUrl(mailtoUrl);
 
-    // Trigger mailto through anchor element to avoid page unload or popup blockers
-    try {
-      const tempLink = document.createElement('a');
-      tempLink.href = mailtoUrl;
-      tempLink.target = '_blank';
-      tempLink.rel = 'noopener noreferrer';
-      document.body.appendChild(tempLink);
-      tempLink.click();
-      setTimeout(() => {
-        if (document.body.contains(tempLink)) {
-          document.body.removeChild(tempLink);
-        }
-      }, 300);
-    } catch (err) {
-      // Fallback
-      window.location.href = mailtoUrl;
+    // Open Gmail compose directly in a new tab
+    const newWindow = window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+      // Popups may be blocked; user can use visible anchor on screen
     }
 
     setSubmitted(true);
   };
 
-  const resetForm = () => {
+  const handleReset = () => {
     setSubmitted(false);
     setFormData({ name: '', email: '', subject: '', message: '' });
     setErrorMsg('');
@@ -143,50 +154,70 @@ export default function Contact() {
             {/* Email Contact Card */}
             <div className="glass-panel rounded-2xl p-6 border border-white/[0.08] hover:border-blue-500/30 transition-all shadow-xl space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-cyan-400">
-                  <Mail className="w-5 h-5" />
-                </div>
+                {/* Email Icon button linking directly to Gmail compose */}
+                <a
+                  href={directGmailUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-cyan-400 hover:bg-blue-500/20 hover:border-cyan-400/50 transition-colors cursor-pointer"
+                  title="Compose Email on Gmail"
+                  aria-label={`Compose email to ${targetEmail} via Gmail`}
+                >
+                  <Mail className="w-5 h-5 pointer-events-none" />
+                </a>
+
                 <div>
                   <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
                     Direct Email Address
                   </span>
+                  {/* Clickable Email Address using mailto */}
                   <a
-                    href={`mailto:${personalInfo.email}?subject=${encodeURIComponent("Portfolio Inquiry - Subham Kumar Keshari")}`}
-                    className="text-sm font-semibold text-white hover:text-cyan-300 transition-colors block"
-                    title={`Send email to ${personalInfo.email}`}
+                    href={directMailtoUrl}
+                    className="text-sm font-semibold text-white hover:text-cyan-300 transition-colors block cursor-pointer"
+                    title={`Open in default email app: ${directMailtoUrl}`}
                   >
-                    {personalInfo.email}
+                    {targetEmail}
                   </a>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 pt-2">
+                {/* Send Direct Email button opening Gmail compose */}
                 <a
-                  href={`mailto:${personalInfo.email}?subject=${encodeURIComponent("Portfolio Inquiry - Subham Kumar Keshari")}`}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow-md shadow-blue-600/20"
+                  href={directGmailUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow-md shadow-blue-600/20 cursor-pointer"
+                  title="Open Gmail compose in a new tab"
                 >
-                  <Mail className="w-3.5 h-3.5" />
+                  <Mail className="w-3.5 h-3.5 pointer-events-none" />
                   <span>Send Direct Email</span>
                 </a>
 
+                {/* Copy Email Button */}
                 <button
                   type="button"
-                  onClick={copyEmailToClipboard}
-                  className="px-3.5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-slate-300 hover:text-white transition-colors"
+                  onClick={handleCopyEmail}
+                  className="px-3.5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-slate-300 hover:text-white transition-colors cursor-pointer"
                   title="Copy email to clipboard"
                   aria-label="Copy email address"
                 >
-                  {copiedEmail ? (
-                    <Check className="w-4 h-4 text-emerald-400" />
+                  {copyStatus === 'copied' ? (
+                    <Check className="w-4 h-4 text-emerald-400 pointer-events-none" />
                   ) : (
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-4 h-4 pointer-events-none" />
                   )}
                 </button>
               </div>
 
-              {copiedEmail && (
+              {copyStatus === 'copied' && (
                 <p className="text-xs text-emerald-400 font-mono text-center animate-fadeIn">
-                  Email copied to clipboard: {personalInfo.email}
+                  Email Copied!
+                </p>
+              )}
+              {copyStatus === 'error' && (
+                <p className="text-xs text-rose-400 font-mono text-center animate-fadeIn">
+                  Failed to copy. Please manually copy: {targetEmail}
                 </p>
               )}
             </div>
@@ -202,7 +233,7 @@ export default function Contact() {
                 href={personalInfo.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.06] hover:border-blue-500/30 transition-all group"
+                className="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.06] hover:border-blue-500/30 transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
@@ -225,7 +256,7 @@ export default function Contact() {
                 href={personalInfo.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.06] hover:border-violet-500/30 transition-all group"
+                className="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.06] hover:border-violet-500/30 transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
@@ -265,51 +296,42 @@ export default function Contact() {
                   
                   <div className="space-y-1">
                     <h4 className="font-heading font-bold text-white text-base">
-                      Email Draft Prepared
+                      Gmail Compose Opened
                     </h4>
                     <p className="text-xs text-slate-300 leading-relaxed max-w-md mx-auto">
-                      Your message draft addressed to <strong className="text-cyan-300">{personalInfo.email}</strong> has been generated and your mail app triggered. Choose an option below to complete sending:
+                      A Gmail compose tab has been prepared with your message addressed to <strong className="text-cyan-300">{targetEmail}</strong>.
                     </p>
                   </div>
 
-                  {/* Actions for drafted email */}
+                  {/* Direct Link Options */}
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1">
                     <a
-                      href={activeMailtoUrl}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs text-white bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-600/20 transition-all"
+                      href={generatedGmailUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs text-white bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-600/20 transition-all cursor-pointer"
                     >
-                      <Mail className="w-4 h-4" />
-                      <span>Open in Mail App</span>
+                      <ExternalLink className="w-4 h-4" />
+                      <span>Open in Gmail Tab</span>
                     </a>
 
                     <a
-                      href={activeGmailUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-xs text-slate-200 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.1] hover:text-white transition-all"
+                      href={generatedMailtoUrl}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-xs text-slate-200 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.1] hover:text-white transition-all cursor-pointer"
                     >
-                      <ExternalLink className="w-4 h-4 text-rose-400" />
-                      <span>Open in Gmail (Web)</span>
+                      <Mail className="w-4 h-4" />
+                      <span>Open in Default Mail App</span>
                     </a>
-
-                    <button
-                      type="button"
-                      onClick={copyDraftToClipboard}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-xs text-slate-200 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.1] hover:text-white transition-all"
-                    >
-                      {copiedDraft ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                      <span>{copiedDraft ? "Draft Copied!" : "Copy Draft Text"}</span>
-                    </button>
                   </div>
 
                   <div className="pt-2">
                     <button
                       type="button"
-                      onClick={resetForm}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-slate-400 hover:text-slate-200 transition-colors"
+                      onClick={handleReset}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
-                      <span>Edit or Send Another Message</span>
+                      <span>Compose Another Message</span>
                     </button>
                   </div>
                 </div>
@@ -382,14 +404,14 @@ export default function Contact() {
 
                   <button
                     type="submit"
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:via-indigo-500 hover:to-cyan-500 shadow-lg shadow-blue-600/30 hover:shadow-cyan-500/30 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 border border-cyan-400/30"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:via-indigo-500 hover:to-cyan-500 shadow-lg shadow-blue-600/30 hover:shadow-cyan-500/30 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 border border-cyan-400/30 cursor-pointer"
                   >
-                    <Send className="w-4 h-4" />
-                    <span>Send Message (Draft Email)</span>
+                    <Send className="w-4 h-4 pointer-events-none" />
+                    <span>Send Message (Opens Gmail)</span>
                   </button>
 
                   <p className="text-[11px] text-slate-400 text-center font-mono pt-1">
-                    Opens your email client directly addressed to <span className="text-cyan-300">{personalInfo.email}</span>.
+                    Opens Gmail compose with pre-filled details to <span className="text-cyan-300">{targetEmail}</span>.
                   </p>
                 </form>
               )}

@@ -80,7 +80,7 @@ export default function CustomCursor() {
     <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
       {/* Outer Glow Ring */}
       <div
-        className={`fixed -translate-x-1/2 -translate-y-1/2 rounded-full transition-transform duration-150 ease-out border ${
+        className={`pointer-events-none fixed -translate-x-1/2 -translate-y-1/2 rounded-full transition-transform duration-150 ease-out border ${
           isHovered
             ? 'w-12 h-12 border-cyan-400 bg-cyan-400/10 shadow-[0_0_20px_rgba(6,182,212,0.4)] scale-110'
             : 'w-8 h-8 border-blue-500/50 bg-blue-500/5 shadow-[0_0_12px_rgba(59,130,246,0.3)]'
@@ -92,7 +92,7 @@ export default function CustomCursor() {
       />
       {/* Inner Pinpoint */}
       <div
-        className={`fixed -translate-x-1/2 -translate-y-1/2 rounded-full transition-opacity duration-100 ${
+        className={`pointer-events-none fixed -translate-x-1/2 -translate-y-1/2 rounded-full transition-opacity duration-100 ${
           isHovered ? 'w-2 h-2 bg-cyan-300' : 'w-1.5 h-1.5 bg-blue-400'
         }`}
         style={{
